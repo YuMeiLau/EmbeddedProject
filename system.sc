@@ -9,14 +9,24 @@
 
 import "c_vec_queue";
 import "c_ivec_queue";
+import "c_ivec_array";
+import "drone";
+import "wireless"
+import "monitor";
 
 behavior Main
 {
-	c_vec_queue vector(1ul);
-	c_ivec_queue ivector(1ul);
-	
+	Wireless wireless_ch;
+	c_mon_array drone_monitor;
+	Drone drone(wireless_ch, drone_monitor);
+	Monitor monitor(drone_monitor);
+			
 	int main(void){
-
+		par 
+		{
+			drone.main();
+			monitor.main();
+		}
 		return (0);
 	}
 };
