@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************** Wireless Bridge ***********************/
 /*
  * Wireless Bridge models an ad-hoc wireless network. 
@@ -13,6 +14,25 @@
 #include <stddef.h>	// get size_t for memcpy declaration
 extern void *memcpy(void*, const void*, size_t);
 extern void abort(void);
+=======
+#include "drone.sh"
+
+import "i_tranceiver";
+
+channel Wireless
+	implements i_tranceiver
+{
+	void send()
+	{
+
+	}
+
+	void receive()
+	{
+
+	}
+};
+>>>>>>> f0a18a5bc41cc3a6148b4e212e30b95d8192aef9
 
 interface i_wbridge_tranceiver
 {
