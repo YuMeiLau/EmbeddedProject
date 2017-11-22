@@ -4,6 +4,8 @@
 #include "string.h"
 #include "sstream.h"
 
+using namespace std;
+
 import "c_ivec_array";
 
 behavior DroneMonitor(i_mon_receive in_ivec)
@@ -23,6 +25,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 		FILE *outFile;
 		vec droneVec[MAX_NO_DRONES];			//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
 		int count;
+		string line;
 		while(1)
 		{
 			outFile = fopen("droneposition.txt", "w+");
@@ -30,7 +33,18 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{
 				droneVec[count] = channel.receive(&in_ivec,count);
-				while(
+				while(getline(outFile,line)
+				{
+					int x;
+					int y;
+					int z;
+
+					std::replace(line.begin(),line.end(), ' ');
+					stringstream ss(line);
+					ss >> x;
+					ss >> y;
+					ss >> z;
+				}
 			}
 		}				
 	}
