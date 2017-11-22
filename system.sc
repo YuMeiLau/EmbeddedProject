@@ -16,7 +16,7 @@ import "monitor";
 
 behavior Main
 {
-	Wireless wireless_ch;
+	wirelessBridge wireless_ch;
 	c_mon_array drone_monitor;
 	Drone drone(wireless_ch, drone_monitor);
 	Monitor monitor(drone_monitor);
