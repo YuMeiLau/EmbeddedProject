@@ -39,7 +39,14 @@ typedef int ivec[4];
 /****************************************************/
 /****       Drone Algorithm Configuration        ****/
 /****************************************************/
-
+/* Wireless Bridge shared via round robin 
+ * Timestep = amount of time allotted to each drone
+ * Timestep of 0 allots one packet to each drone and 
+ * attempts to fully utilize the channel
+ * Timeout defines the amount of time a drone waits
+ * for a packet before giving it up as dropped      */
+#define WB_ROUND_TIMESTEP 0
+#define WB_ROUND_TIMEOUT (8000 * (WB_MAX_PAYLOAD_SIZE + WB_PACKET_HEADER_SIZE) / WB_BIT_RATE)
 
 
 /****************************************************/
