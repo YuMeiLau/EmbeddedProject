@@ -8,13 +8,36 @@
 #ifndef _DRONE_SH_
 #define _DRONE_SH_
 
-typedef int vec[3];
-typedef int ivec[4];
+typedef long vec[3];
+typedef long ivec[4];
 #define _X 0
 #define _Y 1
 #define _Z 2
 #define _ID 3
 #define MAX_NO_DRONES 10
+
+vec vec_minus(vec a, vec b){  \
+  vec out;                    \
+  out[_x] = a[_X] - b[_X];    \
+  out[_Y] = a[_X] - b[_Y];    \
+  out[_Z] = a[_X] - b[_Z];    \
+  return out;                 \
+}
+vec vec_add(vec a, vec b){    \
+  vec out;                    \
+  out[_x] = a[_X] + b[_X];    \
+  out[_Y] = a[_X] + b[_Y];    \
+  out[_Z] = a[_X] + b[_Z];    \
+  return out;                 \
+}
+vec vec_mult(vec a, long b){  \
+  vec out;                    \
+  out[_x] = a[_X] * b;        \
+  out[_Y] = a[_X] * b;        \
+  out[_Z] = a[_X] * b;        \
+  return out;                 \
+}
+
 
 /* vec = 3D vector. vec[_X] = x value, ect */
 /* ivec = 3D vector with id tag. ivec[_ID] = id tag */
