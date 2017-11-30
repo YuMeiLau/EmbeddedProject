@@ -31,13 +31,13 @@ channel c_mon_array(in const unsigned long size)
     {
 	if (!buffer)
 	{
-	    if (!(buffer = (int**) malloc(size * sizeof(int*))))
+	    if (!(buffer = (long**) malloc(size * sizeof(long*))))
 	    {
 		perror("c_mon_array");
 		abort();
 	    }
             for (i = 0; i < size; i++){
-		buffer[i] = (int*) malloc(3 * sizeof(int));
+		buffer[i] = (long*) malloc(3 * sizeof(long));
             }
 	}
     }
@@ -67,7 +67,7 @@ channel c_mon_array(in const unsigned long size)
     void send(const void *d)
     {
 	ivec *p;
-	p = d;
+	p = (ivec*)d;
 	index = (*p)[_ID];
 	if (index < size)
 	{
