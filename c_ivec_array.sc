@@ -1,5 +1,6 @@
 #include <stddef.h>	// get size_t for malloc declaration
 #include "drone.sh"
+#include "inc/vec.h"
 
 extern void perror(const char*);
 
@@ -24,7 +25,7 @@ channel c_mon_array(in const unsigned long size)
 	implements i_mon_send, i_mon_receive
 {
     int i, index;
-    int **buffer = 0;
+    long **buffer = 0;
 
     void setup(void)
     {

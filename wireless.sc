@@ -9,6 +9,7 @@
 */ 
 
 #include "drone.sh"
+#include "metrics.sh"
 #include<stdio.h>
 #include <stddef.h>	// get size_t for memcpy declaration
 extern void *memcpy(void*, const void*, size_t);
@@ -38,6 +39,7 @@ channel wirelessBridgeLink(
         memcpy((char*)Data,(char*)data, len); 
         notify sent;
         len -= WB_MAX_PAYLOAD_SIZE;
+	_PACKETS_SENT++;
      } 
   }
 
