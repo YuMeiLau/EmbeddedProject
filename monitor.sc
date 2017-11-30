@@ -8,7 +8,6 @@ import "c_vec_queue";
 
 behavior DroneMonitor(i_mon_receive in_ivec)
 {
-	//c_mon_array channel(MAX_NO_DRONES);
 	int id;
 	vec droneVec[MAX_NO_DRONES],droneInitPos[MAX_NO_DRONES];		//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
         void init()
