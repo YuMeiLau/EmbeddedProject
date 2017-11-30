@@ -25,3 +25,11 @@ long vec_mag(vec in_vec){
   zS = in_vec[_Z] * in_vec[_Z];
   return sqrtl(xS + yS + zS);	
 }
+
+void vec_norm(vec* in_vec){
+  long mag;
+  mag = vec_mag(*in_vec);
+  (*in_vec)[_X] = (*in_vec)[_X] / mag;
+  (*in_vec)[_Y] = (*in_vec)[_Y] / mag;
+  (*in_vec)[_Z] = (*in_vec)[_Z] / mag;
+}
