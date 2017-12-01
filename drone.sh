@@ -39,20 +39,19 @@
 #define WB_ROUND_TIMESTEP 0
 #define WB_ROUND_TIMEOUT (8000 * (WB_MAX_PAYLOAD_SIZE + WB_PACKET_HEADER_SIZE) / WB_BIT_RATE)
 #define FORMATION_HEIGHT 5000
+#define TIME_STEP 16666666    /* In nanoseconds: 16666666=60Hz */
 
 /****************************************************/
 /****            Camera Configuration            ****/
 /****************************************************/
-#define TIME_STEP 16666666    /* In nanoseconds: 16666666=60Hz */
-
+#define FRAME_RATE 33333333   /* In nanoseconds: 33333333=30HZ */
 
 /****************************************************/
 /****     Drone Physics Model Configuration      ****/
 /****************************************************/
-#define FRAME_RATE 33333333   /* In nanoseconds: 33333333=30HZ */
 #define DR_MAX_ACC 35000      /* milimeters / square second */
 #define DR_MAX_VEL 16000      /* milimeters / second */
-
+#define SAFE_DISTANCE 2000    /* milimeters */
 
 
 
