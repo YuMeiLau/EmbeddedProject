@@ -8,7 +8,7 @@ import "c_vec_queue";
 
 behavior DroneMonitor(i_mon_receive in_ivec)
 {
-	vec droneVec[MAX_NO_DRONES],droneInitPos[MAX_NO_DRONES];		//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
+	vec droneVec[MAX_NO_DRONES],droneInitPos[MAX_NO_DRONES],droneRelativeVec[MAX_NO_DRONES];	//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
         void init()
         {
 		FILE *inFile;
@@ -52,7 +52,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 					{
 						if(count != colCount)									//compare with other drones only
 						{
-							if(((droneVec[count][_X] - droneVec[colCount][_X]) < SAFE_DISTANCE) || ((droneVec[count][_Y] - droneVec[colCount][_Y]) < SAFE_DISTANCE)) || ((droneVec[count][_Z] - droneVec[colCount][_Z]) < SAFE_DISTANCE)
+							if(((droneVec[count][_X] - droneVec[colCount][_X]) < SAFE_DISTANCE) || ((droneVec[count][_Y] - droneVec[colCount][_Y]) < SAFE_DISTANCE) || ((droneVec[count][_Z] - droneVec[colCount][_Z]) < SAFE_DISTANCE))
 							{
 								flag = true;
 								droneVec[count][_X] = droneInitPos[count][_X] - droneRelativeVec[count][_X];
