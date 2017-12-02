@@ -25,9 +25,9 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 	void main(void)
 	{
 		FILE *outFile;
-		int count;
+		int count,initCount,colCount;
 		FILE *inFile;
-                int initCount;
+		bool flag=false;
 		init();														//read initial position of the drones from the file startposition.txt
 		outFile = fopen("droneposition,txt","w+");
 		while(1)
@@ -35,15 +35,29 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 			//waitfor(1000);
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{
-				in_ivec.receive(&droneVec[count],count);	//receive the relative X,Y,Z positions from controller 
-				droneVec[count][_X] = droneVec[count][_X] + droneInitPos[count][_X];				//get the new position of each drone
-                                droneVec[count][_Y] = droneVec[count][_Y] + droneInitPos[count][_Y];
-                                droneVec[count][_Z] = droneVec[count][_Z] + droneInitPos[count][_Z];
+				in_ivec.receive(&droneRelativeVec[count],count);						//receive the relative X,Y,Z positions from controller 
+				droneVec[count][_X] = droneInitPos[count][_X] + droneRelativeVec[count][_X];			//get the new position of each drone
+                                droneVec[count][_Y] = droneInitPos[count][_Y] + droneRelativeVec[count][_Y];
+                                droneVec[count][_Z] = droneInitPos[count][_Z] + droneRelativeVec[count][_Z];
 
 				//check for collision avoidance before writing to file
-				
-
-
+				flag = false;
+				for(colCount=0;colCount<MAX_NO_DRONES;colCount++)
+				{
+					if(flag == false)
+					{
+						if(count != colCount)									//compare with other drones only
+						{
+							if(((droneVec[count][_X] - droneVec[colCount][_X]) < SAFE_DISTANCE) || ((droneVec[count][_Y] - droneVec[colCount][_Y]) < SAFE_DISTANCE)) || ((droneVec[count][_Z] - droneVec[colCount][_Z]) < SAFE_DISTANCE)
+							{
+								flag = true;
+								droneVec[count][_X] = droneInitPos[count][_X] - droneRelativeVec[count][_X];
+			                                	droneVec[count][_Y] = droneInitPos[count][_Y] - droneRelativeVec[count][_Y];
+                        			        	droneVec[count][_Z] = droneInitPos[count][_Z] - droneRelativeVec[count][_Z];		
+							}
+						}	
+					}		
+				}
 				fprintf(outFile, "%d %d %d\n",droneVec[count][_X],droneVec[count][_Y],droneVec[count][_Z]);	//write the new position to file for 3d display
 			}
 			fclose(outFile);   //required?
