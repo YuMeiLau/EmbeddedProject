@@ -44,7 +44,11 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 				flag = false;
 				for(colCount=0;colCount<MAX_NO_DRONES;colCount++)
 				{
-					if(flag == false)
+					if(flag == true)
+					{
+						break;
+					}
+					else
 					{
 						if(count != colCount)									//compare with other drones only
 						{
