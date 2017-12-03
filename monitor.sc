@@ -3,8 +3,11 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "inc/log.h"
+#include "inc/log.c"
 #include "inc/vec.h"
 #include "inc/vec.c"
+#include "metrics.sh"
+#include "metrics.c"
 
 import "c_ivec_array";
 import "c_vec_queue";
@@ -12,7 +15,7 @@ import "c_vec_queue";
 behavior DroneMonitor(i_mon_receive in_ivec)
 {
 	int droneCollision = 0;
-	vec droneVec[MAX_NO_DRONES],droneInitPos[MAX_NO_DRONES],droneRelativeVec[MAX_NO_DRONES];	//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
+	vec droneRelativeVec[MAX_NO_DRONES];	//this is a vector containing x,y,z co-ordinates for all drones; in the form vec[_X],vec[_Y],vec[_Z]
         vec droneColCheck;
 	void init()
         {
@@ -23,7 +26,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
                 {
                 	for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
 			{
-				fscanf(inFile, "%d %d %d",&droneVec[initCount][_X],&droneVec[initCount][_Y],&droneVec[initCount][_Z]);							
+				fscanf(inFile, "%d %d %d",&_DRONE_POSITIONS[initCount][_X],&_DRONE_POSITIONS[initCount][_Y],&_DRONE_POSITIONS[initCount][_Z]);							
 			}
 		}
 		fclose(inFile);	   //required?
@@ -43,9 +46,9 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{
 				in_ivec.receive(&droneRelativeVec[count],count);						//receive the relative X,Y,Z positions from controller 
-				droneVec[count][_X] = droneVec[count][_X] + droneRelativeVec[count][_X];			//get the new position of each drone
-                                droneVec[count][_Y] = droneVec[count][_Y] + droneRelativeVec[count][_Y];
-                                droneVec[count][_Z] = droneVec[count][_Z] + droneRelativeVec[count][_Z];
+				_DRONE_POSITIONS[count][_X] = _DRONE_POSITIONS[count][_X] + droneRelativeVec[count][_X];			//get the new position of each drone
+                                _DRONE_POSITIONS[count][_Y] = _DRONE_POSITIONS[count][_Y] + droneRelativeVec[count][_Y];
+                                _DRONE_POSITIONS[count][_Z] = _DRONE_POSITIONS[count][_Z] + droneRelativeVec[count][_Z];
 
 				//check for collision avoidance before writing to file
 				flag = false;
@@ -59,32 +62,22 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 					{
 						if(count != colCount)									//compare with other drones only
 						{
-							vec_minus(&droneColCheck,droneVec[count],dronevec[colCount]);
+							vec_minus(&droneColCheck,_DRONE_POSITIONS[count],_DRONE_POSITIONS[colCount]);
 							if(vec_mag(droneColCheck) < SAFE_DISTANCE)
 							{
 								flag = true;
-								//droneVec[count][_X] = droneVec[count][_X] - droneRelativeVec[count][_X];
-			                                	//droneVec[count][_Y] = droneVec[count][_Y] - droneRelativeVec[count][_Y];
-                        			        	//droneVec[count][_Z] = droneVec[count][_Z] - droneRelativeVec[count][_Z];		
+								//_DRONE_POSITIONS[count][_X] = _DRONE_POSITIONS[count][_X] - droneRelativeVec[count][_X];
+			                                	//_DRONE_POSITIONS[count][_Y] = _DRONE_POSITIONS[count][_Y] - droneRelativeVec[count][_Y];
+                        			        	//_DRONE_POSITIONS[count][_Z] = _DRONE_POSITIONS[count][_Z] - droneRelativeVec[count][_Z];		
 								droneCollision++;
 							}
 						}	
 					}		
 				}
-				fprintf(outFile, "%d %d %d\n",droneVec[count][_X],droneVec[count][_Y],droneVec[count][_Z]);	//write the new position to file for 3d display
+				fprintf(outFile, "%d %d %d\n",_DRONE_POSITIONS[count][_X],_DRONE_POSITIONS[count][_Y],_DRONE_POSITIONS[count][_Z]);	//write the new position to file for 3d display
 			}
 			LOG("Monitor: Positions Updated\n");
 			fclose(outFile);   //required?
-
-			//read the updated drone position into droneInitPos array
-                	/*inFile = fopen("droneposition.txt","r+");
-                	while(!feof(inFile))
-                	{
-                		for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
-				{
-					fscanf(inFile, "%d %d %d",&droneInitPos[initCount][_X],&droneInitPos[initCount][_Y],&droneInitPos[initCount][_Z]);		
-				}
-			}*/
 		}
 	}
 };
