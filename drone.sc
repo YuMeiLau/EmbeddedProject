@@ -30,6 +30,7 @@ behavior Drone(i_wbridge_tranceiver wic, i_mon_send out_v, in const long network
 		nic.init(ID);
 		vision.init(ID);
 		formation.init(ID);	
+		controller.init(ID);
 	}
 
 	void main(void)
