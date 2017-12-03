@@ -3,11 +3,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "inc/log.h"
-#include "inc/log.c"
 #include "inc/vec.h"
-#include "inc/vec.c"
 #include "metrics.sh"
-#include "metrics.c"
 
 import "c_ivec_array";
 import "c_vec_queue";

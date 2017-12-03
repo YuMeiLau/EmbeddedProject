@@ -2,6 +2,7 @@
 #define _METRICS_SH
 
 #include "drone.sh"
+#include "inc/vec.h"
 
 /* Counters/Metrics used to evaluate algorithm */
 
