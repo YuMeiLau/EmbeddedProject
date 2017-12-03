@@ -16,14 +16,23 @@ behavior DroneMonitor(i_mon_receive in_ivec)
         vec droneColCheck;
 	void init()
         {
+		int droneNoCount = 0;
 		FILE *inFile;
                 int initCount;
                 inFile = fopen("startposition.txt","r+");
                 while(!feof(inFile))
                 {
-                	for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
+			droneNoCount++;
+			if(droneNoCount == (MAX_NO_DRONES-1))
 			{
-				fscanf(inFile, "%d %d %d",&_DRONE_POSITIONS[initCount][_X],&_DRONE_POSITIONS[initCount][_Y],&_DRONE_POSITIONS[initCount][_Z]);							
+				break;
+			}
+			else
+			{
+                		for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
+				{
+					fscanf(inFile, "%d %d %d",&_DRONE_POSITIONS[initCount][_X],&_DRONE_POSITIONS[initCount][_Y],&_DRONE_POSITIONS[initCount][_Z]);		
+				}
 			}
 		}
 		fclose(inFile);	   //required?
