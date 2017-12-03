@@ -8,7 +8,7 @@
 #ifndef _DRONE_SH_
 #define _DRONE_SH_
 
-#define MAX_NO_DRONES 10
+#define MAX_NO_DRONES 8
  
 /****************************************************/
 /****       Wireless Bridge Configuration        ****/
