@@ -58,9 +58,9 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
 		}
 };
 
-behavior Self_Velocity(i_ivec_receiver in_v, vec v)
+behavior Self_Velocity(i_vec_receiver in_v, vec v)
 {
-		ivec data;
+		vec data;
 		vec tmp;
 		void main(void)
 		{
@@ -73,7 +73,7 @@ behavior Self_Velocity(i_ivec_receiver in_v, vec v)
 		}
 };
 
-behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_ivec_receiver in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
+behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_receiver in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
 {
 		Other_Pos other_pos(other_ivec, positions);
 		Self_Pos self_pos(self_vec, positions, ID);
@@ -180,7 +180,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 
 interface Form_Init{ void init(long); };
 
-behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, i_ivec_receiver in_v) implements Form_Init
+behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, i_vec_receiver in_v) implements Form_Init
 {
 		long ID;
 		vec positions[MAX_NO_DRONES];
