@@ -6,7 +6,7 @@ import "c_vec_queue";
 
 interface Cont_Init { void init(long); };
 
-behavior Controller(i_vec_receiver in_a, i_mon_send out_v) implements Cont_Init
+behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) implements Cont_Init
 {
 	long id;
 
@@ -70,6 +70,7 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v) implements Cont_Init
 		mon_pos_delta[_Z] = pos_delta[_Z];
 		mon_pos_delta[_ID] = id;
 		out_v.send(&mon_pos_delta);
+		est_v.send(est_velocity);
 	 }
         }
 };
