@@ -58,7 +58,7 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
 		}
 };
 
-behavior Self_Velocity(i_mon_receive in_v, vec v)
+behavior Self_Velocity(i_ivec_receiver in_v, vec v)
 {
 		ivec data;
 		vec tmp;
@@ -73,7 +73,7 @@ behavior Self_Velocity(i_mon_receive in_v, vec v)
 		}
 };
 
-behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_mon_receive in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
+behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_ivec_receiver in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
 {
 		Other_Pos other_pos(other_ivec, positions);
 		Self_Pos self_pos(self_vec, positions, ID);
@@ -167,7 +167,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 						waitfor(TIME_STEP);
 						LOG("Formation: Running PSO Algorithm");
 						memcpy(current_pos, positions, MAX_NO_DRONES*sizeof(vec));
-						memcpy(current_v, v, sizeof(vec));
+						memcpy(v_current, v, sizeof(vec));
 						i_current = current_pos[ID];
 					
 						/* PSO when to run? */	
@@ -180,7 +180,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 
 interface Form_Init{ void init(long); };
 
-behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, i_mon_receive in_v) implements Form_Init
+behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, i_ivec_receiver in_v) implements Form_Init
 {
 		long ID;
 		vec positions[MAX_NO_DRONES];
