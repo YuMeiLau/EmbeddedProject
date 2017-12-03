@@ -8,5 +8,5 @@ extern unsigned long _COLLISIONS;
 extern unsigned long _PACKETS_SENT;
 extern unsigned long _PACKETS_DROPPED;
 extern unsigned long _WB_OUTGOING_DATA_DROPPED;
-
+extern long _DRONE_POSITIONS[100][3];
 #endif
