@@ -38,7 +38,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 		init();														//read initial position of the drones from the file startposition.txt
 		while(1)
 		{
-			//waitfor(1000);
+			waitfor(TIME_STEP);
 			outFile = fopen("droneposition.txt","w+");
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{

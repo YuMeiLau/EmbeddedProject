@@ -38,8 +38,8 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 		while(1){
 			if (write){
 				if (counter > 1) _WB_OUTGOING_DATA_DROPPED += (counter - 1);
-				LOGL_VERBOSE("Drone %ld sending position over wifi\n", id);
 				wic.send(id, &data_out, 3*sizeof(long));
+				LOGL_VERBOSE("NIC: Drone %ld sent position over wifi\n", id);
 				counter = 0;
 				write = 0;
 			}
@@ -56,6 +56,7 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 						write = 1;	
 					} 
 				}
+				LOGL_VERBOSE("NIC: Drone %ld received over wifi\n", id);
 			}
 		}
 	}

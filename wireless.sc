@@ -30,17 +30,22 @@ channel wirelessBridgeLink(
 {
   
   int send(long addr, void *data, unsigned long len){
-     unsigned long msg_len;
-     while (len > 0){	
-        msg_len = (len > WB_MAX_PAYLOAD_SIZE)     ? WB_MAX_PAYLOAD_SIZE : len;
+     unsigned long msg_len, total_msg_len, i;
+    LOGL("NETWORK:1 Drone %ld sending packet\n", addr); 
+     for (i = 0; i < len; i += WB_MAX_PAYLOAD_SIZE){	
+	total_msg_len = len - i;
+    LOGL("NETWORK:2 Drone %ld sending packet\n", addr); 
+printf("LEN=%ld\n",total_msg_len); 
+        msg_len = (total_msg_len > WB_MAX_PAYLOAD_SIZE)     ? WB_MAX_PAYLOAD_SIZE : total_msg_len;
     	msg_len = (msg_len < WB_MIN_PAYLOAD_SIZE) ? WB_MIN_PAYLOAD_SIZE : msg_len;
         waitfor((1000 * (msg_len + WB_PACKET_HEADER_SIZE) * 8) / WB_BIT_RATE);
 	Addr = addr;
         memcpy((char*)Data,(char*)data, len); 
         notify sent;
-        len -= WB_MAX_PAYLOAD_SIZE;
+        total_msg_len -= WB_MAX_PAYLOAD_SIZE;
 	_PACKETS_SENT++;
      } 
+    LOGL("NETWORK:11 Drone %ld sending packet\n", addr); 
   }
 
   int receive(long *addr, void *data, unsigned long len){
@@ -77,12 +82,12 @@ channel wirelessBridge()
   }
   
   int send(long addr, void *data, unsigned long len) {
-    LOGL("Drone %ld sending packet", addr); 
+    LOGL("NETWORK:0 Drone %ld sending packet\n", addr); 
     return linkAccess.send(addr, data, len); 
   }
   
   int receive(long *addr, void *data, unsigned long len) {
-    LOG("Drone receiving packet"); 
+    LOG("NETWORK: Drone receiving packet\n"); 
     return linkAccess.receive(addr, data, len); 
   }
 };

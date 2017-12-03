@@ -5,7 +5,7 @@ formatSpec = '%d %d %d';
 
 while 1
     inFile = fopen('droneposition.txt','r');
-    droneVecTransposed = fscanf(inFile,formatSpec,sizedroneVecTranspose);        %fscanf reads the file data and fills the output array in column order
+    droneVecTransposed = fscanf(inFile,formatSpec,sizedroneVecTransposed);        %fscanf reads the file data and fills the output array in column order
     fclose(inFile);
     droneVec = droneVecTransposed';						%get the correct matrix
     x = droneVec(:,1);
