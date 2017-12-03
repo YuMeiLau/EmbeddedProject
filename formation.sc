@@ -58,10 +58,26 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
 		}
 };
 
-behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES], in long ID)
+behavior Self_Velocity(i_mon_receive in_v, vec v)
+{
+		ivec data;
+		vec tmp;
+		void main(void)
+		{
+				while(true)
+				{
+						in_v.receive(&data);
+				                vec_new(&tmp, data[_X], data[_Y], data[_Z]);
+                                                vec_equals(&v, tmp);
+				}
+		}
+};
+
+behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_mon_receive in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
 {
 		Other_Pos other_pos(other_ivec, positions);
 		Self_Pos self_pos(self_vec, positions, ID);
+		Self_Velocity self_velocity(in_v, v);
 
 		void main(void)
 		{
@@ -69,13 +85,15 @@ behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, vec positi
 				{
 						other_pos;
 						self_pos;
+						self_velocity;
 				}
 		}
 };
 
-behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long ID)
+behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, in long ID)
 {		
 		vec i_current; 		/* current relative distance to target for drone i */
+		vec v_current;		/* current estimated velocity from controller */
 		vec h;				/* minimum direction vector returned by PSO function */
 		vec current_pos[MAX_NO_DRONES]; /* the updated array storing the relative distance for every drone */
 		
@@ -119,7 +137,6 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long
 				double rl, rg;
 				vec global, local;
 				vec vi;
-				vec v;
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
 				vec_equals(&local, i_current);
 				for(i = 0; i < TERMINATION_POINT; i++)
@@ -129,7 +146,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long
 								srand(i);
 								rl = (double)rand() / (double)RAND_MAX;
 								rg = (double)rand() / (double)RAND_MAX;
-								vi[j] = _INERTIA * v[j] + _PLOCAL * rl * (local[j] - i_current[j]) + _PGLOBAL * rg * (global[j] - i_current[j]);
+								vi[j] = _INERTIA * v_current[j] + _PLOCAL * rl * (local[j] - i_current[j]) + _PGLOBAL * rg * (global[j] - i_current[j]);
 						}
 
 						if(cost(vi) < cost(local))
@@ -150,8 +167,9 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long
 						waitfor(TIME_STEP);
 						LOG("Formation: Running PSO Algorithm");
 						memcpy(current_pos, positions, MAX_NO_DRONES*sizeof(vec));
+						memcpy(current_v, v, sizeof(vec));
 						i_current = current_pos[ID];
-
+					
 						/* PSO when to run? */	
 						pso();
 						LOG("Formation: PSO complete");
@@ -162,12 +180,13 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long
 
 interface Form_Init{ void init(long); };
 
-behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a) implements Form_Init
+behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, i_mon_receive in_v) implements Form_Init
 {
 		long ID;
 		vec positions[MAX_NO_DRONES];
-		Receive receive(self_vec, other_ivec, positions, ID);
-		Path_Planning path_planning(out_a, positions, ID);
+		vec v;                  /* estimated velocity from controller */
+		Receive receive(self_vec, other_ivec, in_v, positions, v, ID);
+		Path_Planning path_planning(out_a, positions, v, ID);
 
 	void init(long id){
 		ID = id;
