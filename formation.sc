@@ -41,7 +41,7 @@ behavior Self_Pos(i_vec_receiver self_vec, vec positions[MAX_NO_DRONES], in long
 		}
 };
 
-behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
+behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES], in long ID)
 {
 		ivec data;
 		vec tmp;
@@ -52,8 +52,11 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
 				{
 						other_ivec.receive(&data);
 						id = data[_ID];
-						vec_new(&tmp, data[_X], data[_Y], data[_Z]);
-						vec_equals(&positions[id], tmp);
+						if(id != ID)
+						{
+							vec_new(&tmp, data[_X], data[_Y], data[_Z]);
+							vec_equals(&positions[id], tmp);
+						}
 				}
 		}
 };
@@ -75,7 +78,7 @@ behavior Self_Velocity(i_vec_receiver in_v, vec v)
 
 behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_receiver in_v, vec positions[MAX_NO_DRONES], vec v, in long ID)
 {
-		Other_Pos other_pos(other_ivec, positions);
+		Other_Pos other_pos(other_ivec, positions, ID);
 		Self_Pos self_pos(self_vec, positions, ID);
 		Self_Velocity self_velocity(in_v, v);
 
@@ -98,22 +101,24 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 		vec current_pos[MAX_NO_DRONES]; /* the updated array storing the relative distance for every drone */
 		
 
-		double cost(vec hi)
+		double cost(vec new_xi)
 		{
 				int j;
 				long d_ij;
 				double a_ij;
 				double term_target, term_relative, result;
-				vec new_xi;
+				double tmp;
 				vec target;
 				vec v_newit;
 				vec v_newij;
 				vec v_ij;
-				
-				vec_add(&new_xi, i_current, hi);
+								
 				vec_new(&target, 0, 0, FORMATION_HEIGHT);
 				vec_minus(&v_newit, target, new_xi);
-				term_target = _P * (vec_mag(v_newit) - vec_mag(target));
+				term_target = (vec_mag(v_newit) - vec_mag(target));
+				term_target = term_target * term_target;
+				term_target = _P * sqrtl(term_target);
+				term_relative = 0;
 
 				for(j = 0; j < MAX_NO_DRONES; j++) /* find neighbourhood */
 				{
@@ -121,9 +126,11 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 						d_ij = vec_mag(v_ij);
 						if(d_ij < SAFE_DISTANCE && j != ID)
 						{
-								a_ij = 1 + exp((double)(SAFE_DISTANCE - d_ij) / _S);
+								a_ij = 1 + exp((double)((SAFE_DISTANCE - d_ij) / _S));
 								vec_minus(&v_newij, current_pos[j], new_xi);
-								term_relative += a_ij * (vec_mag(v_newij) - EXPECTED_DISTANCE);
+								tmp = (vec_mag(v_newij) - EXPECTED_DISTANCE);
+								tmp = sqrtl(tmp * tmp);
+								term_relative += tmp;
 						}
 				}
 
@@ -137,8 +144,9 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				double rl, rg;
 				vec global, local;
 				vec vi;
+				vec new_p;
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
-				vec_equals(&local, i_current);
+				vec_equals(&local, i_current); /* local: current location */
 				for(i = 0; i < TERMINATION_POINT; i++)
 				{
 						for(j = 0; j < 3; j++)
@@ -148,15 +156,17 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								rg = (double)rand() / (double)RAND_MAX;
 								vi[j] = _INERTIA * v_current[j] + _PLOCAL * rl * (local[j] - i_current[j]) + _PGLOBAL * rg * (global[j] - i_current[j]);
 						}
+						
+						vec_add(&new_p, i_current, vi);
 
-						if(cost(vi) < cost(local))
+						if(cost(new_p) < cost(local))
 						{
-								vec_equals(&local, vi);
+								vec_equals(&local, new_p);
 								if(cost(local) < cost(global))
 									vec_equals(&global, local);
 						}
 				}
-				vec_equals(&h, vi);
+				vec_equals(&h, local);
 		}
 
 		void main(void)
