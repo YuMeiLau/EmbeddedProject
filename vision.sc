@@ -34,7 +34,7 @@ behavior ToFormation(i_vec_sender vec_to_formation, vec rel_position)
 
 interface V_Init{ void init(long); };
 
-behavior Vision(i_vec_sender vec_to_nic, i_vec_sender vec_to_formation)
+behavior Vision(i_vec_sender vec_to_nic, i_vec_sender vec_to_formation) implements V_Init
 {
 	long ID;
 	vec rel_position;
