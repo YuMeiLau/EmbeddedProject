@@ -17,16 +17,18 @@ behavior Drone(i_wbridge_tranceiver wic, i_mon_send out_v, in const long network
 	c_vec_queue vision_nic(1ul);
 	c_vec_queue vision_formation(1ul);
 	c_vec_queue formation_controller(1ul);
+	c_vec_queue controller_formation(1ul);
 	c_ivec_queue nic_formation(1ul);
 	NIC nic(wic, vision_nic, nic_formation);
 	Vision vision(vision_nic, vision_formation);
-	Formation formation(vision_formation, nic_formation, formation_controller);
-	Controller controller(formation_controller, out_v);
+	Formation formation(vision_formation, nic_formation, formation_controller, controller_formation);
+	Controller controller(formation_controller, out_v, controller_formation);
 
 	void init(void)
 	{	
 		ID = network_id;
 		nic.init(ID);
+		vision.init(ID);
 		formation.init(ID);	
 	}
 

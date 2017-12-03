@@ -1,5 +1,6 @@
 #include "drone.sh"
 #include "metrics.sh"
+#include "inc/log.h"
 import "wireless";
 import "c_vec_queue";
 import "c_ivec_queue";
@@ -37,6 +38,7 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 		while(1){
 			if (write){
 				if (counter > 1) _WB_OUTGOING_DATA_DROPPED += (counter - 1);
+				LOGL_VERBOSE("Drone %ld sending position over wifi\n", id);
 				wic.send(id, &data_out, 3*sizeof(long));
 				counter = 0;
 				write = 0;
