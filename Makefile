@@ -1,5 +1,5 @@
 # -----------------------------------
-# Makefile for Susan Edge Detection example
+# Makefile 
 # ----------------------------------- 
 
 # --- Macros
@@ -8,11 +8,13 @@ SCC = scc
 CMP = diff -s
 RM  = rm -f
 
-SCFILES = monitor.sc wireless.sc drone.sc system.sc\
-		c_ivec_array.sc c_vec_queue.sc c_ivec_queue.sc
+SCFILES = c_ivec_array.sc c_vec_queue.sc c_ivec_queue.sc\
+          controller.sc drone.sc formation.sc monitor.sc nic.sc system.sc\
+          vision.sc wireless.sc
 
-SIRFILES = monitor.sir wireless.sir drone.sir system.sir\
-                c_ivec_array.sir c_vec_queue.sir c_ivec_queue.sir
+SIRFILES = c_ivec_array.sir c_vec_queue.sir c_ivec_queue.sir\
+           controller.sir drone.sir formation.sir monitor.sir nic.sir system.sir\
+           vision.sc wireless.sc
 
 SCCOPTS = -vv -ww -g -d #-par
 
