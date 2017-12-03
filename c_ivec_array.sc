@@ -1,6 +1,7 @@
 #include <stddef.h>	// get size_t for malloc declaration
 #include "drone.sh"
 #include "inc/vec.h"
+#include "inc/log.h"
 
 extern void perror(const char*);
 
@@ -21,8 +22,12 @@ interface i_mon_send
     void send(const void *d);
 };
 
+interface c_mon_setup{
+    void setup(void);
+};
+
 channel c_mon_array(in const unsigned long size)
-	implements i_mon_send, i_mon_receive
+	implements i_mon_send, i_mon_receive, c_mon_setup
 {
     int i, index;
     long **buffer = 0;
@@ -53,9 +58,10 @@ channel c_mon_array(in const unsigned long size)
 
     void receive(void *d, int idx)
     {
+	LOGL_VERBOSE("Monitor Recieve from %ld\n", (long)idx);
 	if (idx < size)
 	{
-	    memcpy(d, &buffer[idx][0], 3*sizeof(int));
+	    memcpy(d, &buffer[idx][0], 3*sizeof(long));
 	}
 	else
 	{
@@ -71,7 +77,7 @@ channel c_mon_array(in const unsigned long size)
 	index = (*p)[_ID];
 	if (index < size)
 	{
-	   memcpy(&buffer[index][0], d, 3 * sizeof(int));
+	   memcpy(&buffer[index][0], d, 3 * sizeof(long));
 	}
 	else
 	{

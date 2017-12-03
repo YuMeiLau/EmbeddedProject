@@ -6,7 +6,7 @@ import "c_ivec_queue";
 
 interface NIC_INIT
 {
-	void init(int id);
+	void init(long id);
 };
 
 behavior NIC_QUEUE(i_vec_receiver from_camera, vec my_data, int counter)
@@ -23,9 +23,9 @@ behavior NIC_QUEUE(i_vec_receiver from_camera, vec my_data, int counter)
 	}
 };
 
-behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender to_formation, int counter, int id) 
+behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender to_formation, int counter, long id) 
 {
-   int last_received;
+   long last_received;
 	int write;
 	/* only sending predefined structures to avoid parsing. defined below */
 	ivec data_in;
@@ -37,12 +37,12 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 		while(1){
 			if (write){
 				if (counter > 1) _WB_OUTGOING_DATA_DROPPED += (counter - 1);
-				wic.send(id, &data_out, 3*sizeof(int));
+				wic.send(id, &data_out, 3*sizeof(long));
 				counter = 0;
 				write = 0;
 			}
 			else if (!write){
-				if (wic.receive(&(data_in[3]), &(data_in[1]), 3*sizeof(int))){
+				if (wic.receive(&(data_in[3]), &(data_in[1]), 3*sizeof(long))){
 					last_received = data_in[3];
 					to_formation.send(data_in);
 					if ((last_received+1)%MAX_NO_DRONES==id){
@@ -61,13 +61,13 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 
 behavior NIC(i_wbridge_tranceiver wic, i_vec_receiver from_camera, i_ivec_sender to_formation) implements NIC_INIT
 {
-	int id;
+	long id;
 	int counter;
 	vec my_data;
 	NIC_QUEUE nicq(from_camera, my_data, counter);
 	NIC_RROBIN_MNGR  mngr(wic, my_data, to_formation, counter, id);	
 
-	void init(int ID){
+	void init(long ID){
 		counter = 0;
 		id = ID;
 	}

@@ -2,6 +2,7 @@
 #include "inc/vec.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "inc/log.h"
 
 import "c_ivec_array";
 import "c_vec_queue";
@@ -21,6 +22,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 				fscanf(inFile, "%d %d %d",&droneInitPos[initCount][_X],&droneInitPos[initCount][_Y],&droneInitPos[initCount][_Z]);							
 			}
 		}
+		fclose(inFile);	   //required?
 	}
 	void main(void)
 	{
@@ -28,11 +30,12 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 		int count,initCount,colCount;
 		FILE *inFile;
 		bool flag=false;
+		LOG("Starting Monitor\n");
 		init();														//read initial position of the drones from the file startposition.txt
-		outFile = fopen("droneposition,txt","w+");
 		while(1)
 		{
 			//waitfor(1000);
+			outFile = fopen("droneposition.txt","w+");
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{
 				in_ivec.receive(&droneRelativeVec[count],count);						//receive the relative X,Y,Z positions from controller 
@@ -64,18 +67,18 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 				}
 				fprintf(outFile, "%d %d %d\n",droneVec[count][_X],droneVec[count][_Y],droneVec[count][_Z]);	//write the new position to file for 3d display
 			}
+			LOG("Monitor: Positions Updated\n");
 			fclose(outFile);   //required?
 
 			//read the updated drone position into droneInitPos array
-                	inFile = fopen("droneposition.txt","r+");
+                	/*inFile = fopen("droneposition.txt","r+");
                 	while(!feof(inFile))
                 	{
                 		for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
 				{
 					fscanf(inFile, "%d %d %d",&droneInitPos[initCount][_X],&droneInitPos[initCount][_Y],&droneInitPos[initCount][_Z]);		
 				}
-			}
-			fclose(inFile);	   //required?
+			}*/
 		}
 	}
 };

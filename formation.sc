@@ -2,6 +2,7 @@
 
 #include "inc/vec.h"
 #include "inc/vec.c"
+#include "inc/log.h"
 import "c_vec_queue";
 import "c_ivec_queue";
 
@@ -27,7 +28,7 @@ void vec_equals(vec* out_vec, vec original)
   (*out_vec)[_Z] = original[_Z];
 }
 
-behavior Self_Pos(i_vec_receiver self_vec, vec positions[MAX_NO_DRONES], long ID)
+behavior Self_Pos(i_vec_receiver self_vec, vec positions[MAX_NO_DRONES], in long ID)
 {
 		vec data;
 		void main(void)
@@ -57,7 +58,7 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES])
 		}
 };
 
-behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES], long ID)
+behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES], in long ID)
 {
 		Other_Pos other_pos(other_ivec, positions);
 		Self_Pos self_pos(self_vec, positions, ID);
@@ -72,7 +73,7 @@ behavior Receive(i_vec_receiver self_vec, i_ivec_receiver other_ivec, vec positi
 		}
 };
 
-behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], long ID)
+behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], in long ID)
 {		
 		vec i_current; 		/* current relative distance to target for drone i */
 		vec h;				/* minimum direction vector returned by PSO function */
@@ -147,22 +148,31 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], long ID
 				{
 						/* Time Step? */
 						waitfor(TIME_STEP);
+						LOG("Formation: Running PSO Algorithm");
 						memcpy(current_pos, positions, MAX_NO_DRONES*sizeof(vec));
 						i_current = current_pos[ID];
 
 						/* PSO when to run? */	
 						pso();
-
+						LOG("Formation: PSO complete");
 						out_a.send(h);
 				}
 		}
 };
 
-behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a, long ID)
+interface Form_Init{ void init(long); };
+
+behavior Formation(i_vec_receiver self_vec, i_ivec_receiver other_ivec, i_vec_sender out_a) implements Form_Init
 {
+		long ID;
 		vec positions[MAX_NO_DRONES];
 		Receive receive(self_vec, other_ivec, positions, ID);
 		Path_Planning path_planning(out_a, positions, ID);
+
+	void init(long id){
+		ID = id;
+	}
+
         void main(void)
         {
     			par 

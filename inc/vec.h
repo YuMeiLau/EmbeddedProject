@@ -11,7 +11,9 @@ typedef long ivec[4];
 void vec_minus(vec* out_vec, vec a, vec b);        
 void vec_add(vec* out_vec, vec a, vec b);  
 void vec_mult(vec* out_vec, vec a, long b);  
+void vec_div(vec* out_vec, vec a, long b);  
 long vec_mag(vec in_vec);
+long vec_hor_mag(vec in_vec);
 void vec_norm(vec* in_vec);
 /* vec = 3D vector. vec[_X] = x value, ect */
 /* ivec = 3D vector with id tag. ivec[_ID] = id tag */

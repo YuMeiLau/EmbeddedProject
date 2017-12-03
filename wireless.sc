@@ -10,6 +10,7 @@
 
 #include "drone.sh"
 #include "metrics.sh"
+#include "inc/log.h"
 #include<stdio.h>
 #include <stddef.h>	// get size_t for memcpy declaration
 extern void *memcpy(void*, const void*, size_t);
@@ -17,20 +18,19 @@ extern void abort(void);
 
 interface i_wbridge_tranceiver
 {
-  int send(int addr, void *data, unsigned long len); 
-  int receive(int *addr, void *data, unsigned long len);
+  int send(long addr, void *data, unsigned long len); 
+  int receive(long *addr, void *data, unsigned long len);
 };
 
 channel wirelessBridgeLink(
 		void *Data,
-		int Addr,
+		long Addr,
 		event sent)
    implements i_wbridge_tranceiver
 {
   
-  int send(int addr, void *data, unsigned long len){
+  int send(long addr, void *data, unsigned long len){
      unsigned long msg_len;
-     
      while (len > 0){	
         msg_len = (len > WB_MAX_PAYLOAD_SIZE)     ? WB_MAX_PAYLOAD_SIZE : len;
     	msg_len = (msg_len < WB_MIN_PAYLOAD_SIZE) ? WB_MIN_PAYLOAD_SIZE : msg_len;
@@ -43,7 +43,7 @@ channel wirelessBridgeLink(
      } 
   }
 
-  int receive(int *addr, void *data, unsigned long len){
+  int receive(long *addr, void *data, unsigned long len){
      unsigned long msg_len;
      while (len > 0){	
         msg_len = (len > WB_MAX_PAYLOAD_SIZE)     ? WB_MAX_PAYLOAD_SIZE : len;
@@ -67,7 +67,7 @@ channel wirelessBridge()
 {
   unsigned char Data[WB_MAX_PAYLOAD_SIZE];
   void *D;
-  int senderAddress;
+  long senderAddress;
   event sent; 
   
   wirelessBridgeLink linkAccess(D, senderAddress, sent);
@@ -76,11 +76,13 @@ channel wirelessBridge()
 	D = Data;
   }
   
-  int send(int addr, void *data, unsigned long len) {
+  int send(long addr, void *data, unsigned long len) {
+    LOGL("Drone %ld sending packet", addr); 
     return linkAccess.send(addr, data, len); 
   }
   
-  int receive(int *addr, void *data, unsigned long len) {
+  int receive(long *addr, void *data, unsigned long len) {
+    LOG("Drone receiving packet"); 
     return linkAccess.receive(addr, data, len); 
   }
 };

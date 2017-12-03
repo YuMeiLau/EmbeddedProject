@@ -1,12 +1,12 @@
 #include "drone.sh"
 #include "inc/vec.h"
-#include "inc/vec.c"
+#include "inc/log.h"
 import "c_ivec_array";
 import "c_vec_queue";
 
-interface Init{ void init(long id); };
+interface Cont_Init { void init(long); };
 
-behavior Controller(i_vec_receiver in_a, i_mon_send out_v) implements Init
+behavior Controller(i_vec_receiver in_a, i_mon_send out_v) implements Cont_Init
 {
 	long id;
 
@@ -26,6 +26,7 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v) implements Init
 	 while(1){
 		/* Update velocity everytime Formation returns a new destination direction */
 		in_a.receive(&direction_vector);
+		LOG("Drone Controller %ld received heading\n");
 
 		/* Adjust destination based on current velocity (dont overshoot) */
 		/* Next position based on burrent estimated velocity */
