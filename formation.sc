@@ -70,6 +70,7 @@ behavior Self_Velocity(i_vec_receiver in_v, vec v)
 				while(true)
 				{
 						in_v.receive(&data);
+						printf("SELF_Vel=%ld",data[_X]);
 				                vec_new(&tmp, data[_X], data[_Y], data[_Z]);
                                                 vec_equals(&v, tmp);
 				}
@@ -115,7 +116,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								
 				vec_new(&target, 0, 0, FORMATION_HEIGHT);
 				vec_minus(&v_newit, target, new_xi);
-				term_target = (vec_mag(v_newit) - vec_mag(target));
+				term_target = (vec_mag(v_newit)); /*- vec_mag(target));*/
 				term_target = term_target * term_target;
 				term_target = _P * sqrtl(term_target);
 				term_relative = 0;
@@ -129,8 +130,8 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								a_ij = 1 + exp((double)((SAFE_DISTANCE - d_ij) / _S));
 								vec_minus(&v_newij, current_pos[j], new_xi);
 								tmp = (vec_mag(v_newij) - EXPECTED_DISTANCE);
-								tmp = sqrtl(tmp * tmp);
-								term_relative += tmp;
+								tmp = (tmp < 0) ? (tmp * -1) : tmp;
+								term_relative += tmp * a_ij;
 						}
 				}
 
@@ -145,6 +146,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				vec global, local;
 				vec vi;
 				vec new_p;
+				vec tmp_pos_delta;
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
 				vec_equals(&local, i_current); /* local: current location */
 				for(i = 0; i < TERMINATION_POINT; i++)
@@ -155,9 +157,19 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								rl = (double)rand() / (double)RAND_MAX;
 								rg = (double)rand() / (double)RAND_MAX;
 								vi[j] = _INERTIA * v_current[j] + _PLOCAL * rl * (local[j] - i_current[j]) + _PGLOBAL * rg * (global[j] - i_current[j]);
+								/*printf("\n\n_INERTIA:%f * ", _INERTIA); 
+								printf("v_current:%ld + ",v_current[j]); 
+								printf("_PLOCAL:%f * ",_PLOCAL); 
+								printf("rl:%f * ",rl); 
+								printf("(local:%ld -",local[j]); 
+								printf(" i_current:%ld) + ",i_current[j]); 
+								printf("_PGLOBAL:%f * ",_PGLOBAL); 
+								printf("rg:%f * ",rg); 
+								printf("(global:%ld ",global[j]);
+								printf(" - i_current:%ld", i_current[j]);*/ 
 						}
-						
-						vec_add(&new_p, i_current, vi);
+					        vec_div(&tmp_pos_delta, vi, TIME_STEP_HZ);	
+						vec_add(&new_p, i_current, tmp_pos_delta);
 
 						if(cost(new_p) < cost(local))
 						{
