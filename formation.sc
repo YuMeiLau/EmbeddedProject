@@ -36,7 +36,7 @@ behavior Self_Pos(i_vec_receiver self_vec, vec positions[MAX_NO_DRONES], in long
 				while(true)
 				{
 						self_vec.receive(&data);
-						vec_equals(&positions[ID], data);		
+						vec_equals(&(positions[ID]), data);		
 				}
 		}
 };
@@ -55,7 +55,7 @@ behavior Other_Pos(i_ivec_receiver other_ivec, vec positions[MAX_NO_DRONES], in 
 						if(id != ID)
 						{
 							vec_new(&tmp, data[_X], data[_Y], data[_Z]);
-							vec_equals(&positions[id], tmp);
+							vec_equals(&(positions[id]), tmp);
 						}
 				}
 		}
@@ -70,7 +70,6 @@ behavior Self_Velocity(i_vec_receiver in_v, vec v)
 				while(true)
 				{
 						in_v.receive(&data);
-						printf("SELF_Vel=%ld",data[_X]);
 				                vec_new(&tmp, data[_X], data[_Y], data[_Z]);
                                                 vec_equals(&v, tmp);
 				}
@@ -105,10 +104,10 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 		double cost(vec new_xi)
 		{
 				int j;
-				long d_ij;
-				double a_ij;
-				double term_target, term_relative, result;
-				double tmp;
+				long double d_ij;
+				long double a_ij;
+				long term_target, term_relative, result;
+				long double tmp;
 				vec target;
 				vec v_newit;
 				vec v_newij;
@@ -116,26 +115,35 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								
 				vec_new(&target, 0, 0, FORMATION_HEIGHT);
 				vec_minus(&v_newit, target, new_xi);
-				term_target = (vec_mag(v_newit)); /*- vec_mag(target));*/
-				term_target = term_target * term_target;
-				term_target = _P * sqrtl(term_target);
+				//printf("FORAMATION: target[%ld][%ld][%ld]  new_xi[%ld][%ld][%ld]  v_newit[%ld][%ld][%ld]\n",target[_X], target[_Y], target[_Z], new_xi[_X], new_xi[_Y], new_xi[_Z], v_newit[_X], v_newit[_Y], v_newit[_Z]);
+				term_target = vec_mag(v_newit); /*- vec_mag(target));*/
+				//printf("FORMATION: term_target (%lf)", term_target);
+				term_target = (term_target < 0) ? (term_target*-1) : term_target;
+				term_target = _P * term_target;
+				//printf("  FORMATION: term_target (%lf)\n", term_target);
 				term_relative = 0;
 
 				for(j = 0; j < MAX_NO_DRONES; j++) /* find neighbourhood */
 				{
 						vec_minus(&v_ij, i_current, current_pos[j]);
-						d_ij = vec_mag(v_ij);
+						d_ij = (double) vec_mag(v_ij);
 						if(d_ij < SAFE_DISTANCE && j != ID)
 						{
-								a_ij = 1 + exp((double)((SAFE_DISTANCE - d_ij) / _S));
+								a_ij = 1 + exp((double)((double)(SAFE_DISTANCE - d_ij) / (double)_S));
 								vec_minus(&v_newij, current_pos[j], new_xi);
 								tmp = (vec_mag(v_newij) - EXPECTED_DISTANCE);
 								tmp = (tmp < 0) ? (tmp * -1) : tmp;
-								term_relative += tmp * a_ij;
+								printf("FORMATION: term_rel = tmp(%lf) + a_ij(%lf)", tmp, a_ij); 
+								term_relative += (long) tmp * (long) a_ij;
+								printf(" term_rel(%ld)", term_relative); 
 						}
 				}
-
+				if (new_xi[_Z] < SAFE_DISTANCE) {
+					a_ij = 1 + exp((double)((SAFE_DISTANCE - new_xi[_Z]) / _S));
+					term_relative += a_ij * FORMATION_HEIGHT;
+				}
 				result = term_target + term_relative;
+				printf("FORMATION: result (%ld) = term_target (%ld) + term_relative (%ld)\n", result, term_target, term_relative);
 				return result;
 		}
 
@@ -150,6 +158,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				vec_new(&h, 0, 0, 0);
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
 				vec_equals(&local, i_current); /* local: current location */
+						printf("FORMATION: Cost of current pos:[%ld][%ld][%ld] = %ld\n",local[_X],local[_Y],local[_Z], cost(local));
 				for(i = 0; i < TERMINATION_POINT; i++)
 				{
 						for(j = 0; j < 3; j++)
@@ -158,7 +167,8 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								rl = (double)rand() / (double)RAND_MAX;
 								rg = (double)rand() / (double)RAND_MAX;
 								vi[j] = _INERTIA * v_current[j] + _PLOCAL * rl * (local[j] - i_current[j]) + _PGLOBAL * rg * (global[j] - i_current[j]);
-								/*printf("\n\n_INERTIA:%f * ", _INERTIA); 
+								/*printf("\nvi[%d](%ld): = ", j, vi[j]); 
+								printf("_INERTIA:%f * ", _INERTIA); 
 								printf("v_current:%ld + ",v_current[j]); 
 								printf("_PLOCAL:%f * ",_PLOCAL); 
 								printf("rl:%f * ",rl); 
@@ -167,15 +177,17 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								printf("_PGLOBAL:%f * ",_PGLOBAL); 
 								printf("rg:%f * ",rg); 
 								printf("(global:%ld ",global[j]);
-								printf(" - i_current:%ld", i_current[j]);*/ 
+								printf(" - i_current:%ld", i_current[j]);*/
 						}
 					        vec_div(&tmp_pos_delta, vi, TIME_STEP_HZ);	
 						vec_add(&new_p, i_current, tmp_pos_delta);
+						printf("FORMATION: Cost of [%ld][%ld][%ld] = %ld\n",new_p[_X],new_p[_Y],new_p[_Z], cost(new_p));
 
 						if(cost(new_p) < cost(local))
 						{
 								vec_equals(&local, new_p);
 								vec_equals(&h, tmp_pos_delta);
+								printf("FORMATION: updating next position: [%ld][%ld][%ld]", h[_X],h[_Y],h[_Z]);
 								if(cost(local) < cost(global))
 								{	
 									vec_equals(&global, local);
@@ -197,7 +209,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 					
 						/* PSO when to run? */	
 						pso();
-						LOG("Formation: PSO complete");
+						LOG("Formation: PSO complete\n");
 						out_a.send(h);
 				}
 		}

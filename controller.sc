@@ -25,12 +25,12 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 	 vec new_velocity, ave_velocity; 
          long max_vel_delta, tmp_max_vel_delta, gravity_vec, dest_dist, max_velocity, norm_divisor, grav_angle;
 	 max_vel_delta = DR_MAX_ACC / TIME_STEP_HZ;
-	 gravity_vec = 98000 / TIME_STEP_HZ;
+	 gravity_vec = 9800 / TIME_STEP_HZ;
          
 	 while(1){
 		/* Update velocity everytime Formation returns a new destination direction */
 		in_a.receive(&direction_vector);
-		LOG("Drone Controller %ld received heading\n");
+		LOGL("Drone Controller %ld received heading\n", id);
 		printf("CONTROLLER: Direction [%ld][%ld][%ld]\n", direction_vector[_X], direction_vector[_Y], direction_vector[_Z]);
 
 		/* Adjust destination based on current velocity (dont overshoot) */
@@ -71,7 +71,7 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		vec_div(&pos_delta, ave_velocity, TIME_STEP_HZ);	
 		
 		est_velocity = new_velocity;
-		printf("CONTROLLER: NEW_VEL [%ld][%ld][%ld]\n", new_velocity[_X], new_velocity[_Y], new_velocity[_Z]);
+		//printf("CONTROLLER: NEW_VEL [%ld][%ld][%ld]\n", new_velocity[_X], new_velocity[_Y], new_velocity[_Z]);
 		
 		mon_pos_delta[_X] = pos_delta[_X];
 		mon_pos_delta[_Y] = pos_delta[_Y];

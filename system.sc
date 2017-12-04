@@ -33,11 +33,22 @@ behavior Main
 	Drone drone8(wireless_ch, drone_monitor, 8l);
 	Drone drone9(wireless_ch, drone_monitor, 9l);
 	DroneMonitor monitor(drone_monitor);
-			
+
+long double X1, X2, X3;
+	
 	int main(void){
 		LOG("Staring System\n");
 		wireless_ch.init();
 		drone_monitor.setup();
+
+X1 =  200000000000000;
+X2 = -200000000000000;
+X3 = -200000000000000;
+X1 = X1 * X1;
+X2 = X2 * X2;
+X3 = X3 * X3;
+printf("!!!!!SYSTEM: sqrt %ld\n", (long)sqrtl((long double)(X1+X2+X3)));
+//exit(1);
 		par 
 		{
 			drone0.main();

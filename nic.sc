@@ -29,7 +29,7 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
    long last_received;
 	int write;
 	/* only sending predefined structures to avoid parsing. defined below */
-	ivec data_in;
+	ivec data_in, idata_out;
 
 	void main(void)
 	{
@@ -38,13 +38,17 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 		while(1){
 			if (write){
 				if (counter > 1) _WB_OUTGOING_DATA_DROPPED += (counter - 1);
-				wic.send(id, &data_out, 3*sizeof(long));
+				idata_out[_X] = data_out[_X];
+				idata_out[_Y] = data_out[_Y];
+				idata_out[_Z] = data_out[_Z];
+				idata_out[_ID] = id;
+				wic.send(id, &idata_out, 4*sizeof(long));
 				LOGL_VERBOSE("NIC: Drone %ld sent position over wifi\n", id);
 				counter = 0;
 				write = 0;
 			}
 			else if (!write){
-				if (wic.receive(&(data_in[3]), &(data_in[1]), 3*sizeof(long))){
+				if (wic.receive(&(data_in[3]), &(data_in[0]), 4*sizeof(long))){
 					last_received = data_in[3];
 					to_formation.send(data_in);
 					if ((last_received+1)%MAX_NO_DRONES==id){

@@ -58,7 +58,6 @@ channel c_mon_array(in const unsigned long size)
 
     void receive(void *d, int idx)
     {
-	LOGL_VERBOSE("Monitor Recieve from %ld\n", (long)idx);
 	if (idx < size)
 	{
 	    memcpy(d, &buffer[idx][0], 3*sizeof(long));

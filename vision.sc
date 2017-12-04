@@ -19,7 +19,11 @@ behavior ToNic(i_vec_sender vec_to_nic, vec rel_position)
 {
 	void main(void)
 	{
+		waitfor(FRAME_RATE);
 		vec_to_nic.send(rel_position);
+
+
+
 	}
 };
 
@@ -28,6 +32,7 @@ behavior ToFormation(i_vec_sender vec_to_formation, vec rel_position)
 {
 	void main(void)
 	{
+		waitfor(FRAME_RATE);
 		vec_to_formation.send(rel_position);
 	}
 };

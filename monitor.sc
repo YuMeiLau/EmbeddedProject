@@ -31,7 +31,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 			{
                 		for(initCount=0;initCount<MAX_NO_DRONES;initCount++)
 				{
-					fscanf(inFile, "%d %d %d",&_DRONE_POSITIONS[initCount][_X],&_DRONE_POSITIONS[initCount][_Y],&_DRONE_POSITIONS[initCount][_Z]);		
+					fscanf(inFile, "%ld %ld %ld",&_DRONE_POSITIONS[initCount][_X],&_DRONE_POSITIONS[initCount][_Y],&_DRONE_POSITIONS[initCount][_Z]);		
 				}
 			}
 		}
@@ -80,7 +80,7 @@ behavior DroneMonitor(i_mon_receive in_ivec)
 						}	
 					}		
 				}
-				fprintf(outFile, "%d %d %d\n",_DRONE_POSITIONS[count][_X],_DRONE_POSITIONS[count][_Y],_DRONE_POSITIONS[count][_Z]);	//write the new position to file for 3d display
+				fprintf(outFile, "%ld %ld %ld\n",_DRONE_POSITIONS[count][_X],_DRONE_POSITIONS[count][_Y],_DRONE_POSITIONS[count][_Z]);	//write the new position to file for 3d display
 			}
 			LOG("Monitor: Positions Updated\n");
 			fclose(outFile);   //required?
