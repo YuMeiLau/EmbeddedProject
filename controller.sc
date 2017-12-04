@@ -71,6 +71,7 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		vec_div(&pos_delta, ave_velocity, TIME_STEP_HZ);	
 		
 		est_velocity = new_velocity;
+		printf("CONTROLLER: NEW_VEL [%ld][%ld][%ld]\n", new_velocity[_X], new_velocity[_Y], new_velocity[_Z]);
 		
 		mon_pos_delta[_X] = pos_delta[_X];
 		mon_pos_delta[_Y] = pos_delta[_Y];
