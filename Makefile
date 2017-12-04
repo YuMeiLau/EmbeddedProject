@@ -14,7 +14,7 @@ SCFILES = c_ivec_array.sc c_vec_queue.sc c_ivec_queue.sc\
 
 SIRFILES = c_ivec_array.sir c_vec_queue.sir c_ivec_queue.sir\
            controller.sir drone.sir formation.sir monitor.sir nic.sir system.sir\
-           vision.sc wireless.sc
+           vision.sir wireless.sir
 
 SCCOPTS = -vv -ww -g -d #-par
 

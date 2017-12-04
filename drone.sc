@@ -35,8 +35,8 @@ behavior Drone(i_wbridge_tranceiver wic, i_mon_send out_v, in const long network
 
 	void main(void)
 	{
-		if (ID >= MAX_NO_DRONES) return;
 		init();		
+		if (ID >= MAX_NO_DRONES) return;
 		par 
 		{
 			nic.main();

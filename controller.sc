@@ -39,12 +39,12 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		/* Position delta to reach desired point */
 		vec_minus(&est_pos_delta, direction_vector, est_pos_delta);
 		vec_mult(&dir_correction_vector, est_pos_delta, TIME_STEP_HZ * 2);
-		dest_dist = vec_mag(dir_correction_vector); 
 
 		
 		/* Vertical accel < horizontal accel. below estimates effect of gravity 
                    as a function of the angle of acceleration */
-		grav_angle = (dest_dist == 0) 0 : (dir_correction_vector[_Z]/dest_dist);
+		dest_dist = vec_mag(dir_correction_vector); 
+		grav_angle = (dest_dist == 0) ? 0 : (dir_correction_vector[_Z]/dest_dist);
 		tmp_max_vel_delta = (dir_correction_vector[_Z] < 0) ? max_vel_delta :
 			max_vel_delta - (gravity_vec * grav_angle);
 		if (tmp_max_vel_delta < dest_dist){
@@ -55,7 +55,7 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		/* Determine new velocity after applying acceleration for TIME_STEP
 		   max velocity also affected by gravity as a function of angle of travel */
 		dest_dist = vec_mag(new_velocity);
-		grav_angle = (dest_dist == 0) 0 : (new_velocity[_Z]/dest_dist);
+		grav_angle = (dest_dist == 0) ? 0 : (new_velocity[_Z]/dest_dist);
 		max_velocity = (dir_correction_vector[_Z] < 0) ? DR_MAX_VEL :
 			(DR_MAX_VEL - (gravity_vec * grav_angle));
 		vec_add(&new_velocity, est_velocity, dir_correction_vector);
