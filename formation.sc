@@ -147,7 +147,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				vec vi;
 				vec new_p;
 				vec tmp_pos_delta;
-				vec_equals(&h, 0, 0, 0);
+				vec_new(&h, 0, 0, 0);
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
 				vec_equals(&local, i_current); /* local: current location */
 				for(i = 0; i < TERMINATION_POINT; i++)
@@ -175,10 +175,10 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 						if(cost(new_p) < cost(local))
 						{
 								vec_equals(&local, new_p);
+								vec_equals(&h, tmp_pos_delta);
 								if(cost(local) < cost(global))
 								{	
 									vec_equals(&global, local);
-									vec_equals(&h, tmp_pos_delta);
 								}
 						}
 				}
