@@ -25,11 +25,11 @@ void vec_div(vec* out_vec, vec a, long b){
 }
 
 long vec_mag(vec in_vec){
-  long xS, yS, zS; 
+  long double xS, yS, zS; 
   xS = in_vec[_X] * in_vec[_X];	
   yS = in_vec[_Y] * in_vec[_Y];	
   zS = in_vec[_Z] * in_vec[_Z];
-  return sqrtl(xS + yS + zS);	
+  return (long)sqrtl((long double)(xS + yS + zS));	
 }
 
 long vec_hor_mag(vec in_vec){

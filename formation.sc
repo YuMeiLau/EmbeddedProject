@@ -10,7 +10,7 @@ import "c_ivec_queue";
 #define _PLOCAL 0.5
 #define _PGLOBAL 0.5
 #define _P 3
-#define _S 0.4
+#define _S 100
 #define TERMINATION_POINT 100
 #define EXPECTED_DISTANCE 3000
 
@@ -106,7 +106,8 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				int j;
 				long double d_ij;
 				long double a_ij;
-				long term_target, term_relative, result;
+				long double a_exp;
+				long double term_target, term_relative, result;
 				long double tmp;
 				vec target;
 				vec v_newit;
@@ -129,13 +130,14 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 						d_ij = (double) vec_mag(v_ij);
 						if(d_ij < SAFE_DISTANCE && j != ID)
 						{
-								a_ij = 1 + exp((double)((double)(SAFE_DISTANCE - d_ij) / (double)_S));
+								a_exp = (SAFE_DISTANCE - d_ij) / _S;
+								a_ij = 1 + exp(a_exp);
 								vec_minus(&v_newij, current_pos[j], new_xi);
 								tmp = (vec_mag(v_newij) - EXPECTED_DISTANCE);
 								tmp = (tmp < 0) ? (tmp * -1) : tmp;
-								//printf("FORMATION: term_rel = tmp(%lf) + a_ij(%lf)", tmp, a_ij); 
-								term_relative += (long) tmp * (long) a_ij;
-								//printf(" term_rel(%ld)", term_relative); 
+								//printf("FORMATION: exp(%.24Lel), tmp(%.24Lel), a_ij(%.24Lel) ", a_exp, tmp, a_ij); 
+								term_relative += (tmp * a_ij);
+								//printf(" term_rel(%.24Lel)\n", term_relative); 
 						}
 				}
 				if (new_xi[_Z] < SAFE_DISTANCE) {
@@ -158,7 +160,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 				vec_new(&h, 0, 0, 0);
 				vec_new(&global, 0, 0, FORMATION_HEIGHT);
 				vec_equals(&local, i_current); /* local: current location */
-						printf("FORMATION: Cost of current pos:[%ld][%ld][%ld] = %ld\n",local[_X],local[_Y],local[_Z], cost(local));
+						//printf("FORMATION: Cost of current pos:[%ld][%ld][%ld] = %ld\n",local[_X],local[_Y],local[_Z], cost(local));
 				for(i = 0; i < TERMINATION_POINT; i++)
 				{
 						for(j = 0; j < 3; j++)
@@ -181,13 +183,13 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 						}
 					        vec_div(&tmp_pos_delta, vi, TIME_STEP_HZ);	
 						vec_add(&new_p, i_current, tmp_pos_delta);
-						printf("FORMATION: Cost of [%ld][%ld][%ld] = %ld\n",new_p[_X],new_p[_Y],new_p[_Z], cost(new_p));
+						//printf("FORMATION: Cost of [%ld][%ld][%ld] = %ld\n",new_p[_X],new_p[_Y],new_p[_Z], cost(new_p));
 
 						if(cost(new_p) < cost(local))
 						{
 								vec_equals(&local, new_p);
 								vec_equals(&h, tmp_pos_delta);
-								printf("FORMATION: updating next position: [%ld][%ld][%ld]", h[_X],h[_Y],h[_Z]);
+								//printf("FORMATION: updating next position: [%ld][%ld][%ld]", h[_X],h[_Y],h[_Z]);
 								if(cost(local) < cost(global))
 								{	
 									vec_equals(&global, local);
