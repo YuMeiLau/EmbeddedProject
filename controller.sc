@@ -9,8 +9,12 @@ interface Cont_Init { void init(long); };
 behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) implements Cont_Init
 {
 	long id;
+	vec est_velocity;
 
 	void init(long ID){
+		est_velocity[_X] = 0;
+		est_velocity[_Y] = 0;
+		est_velocity[_Z] = 0;
 		id = ID;
 	}
 
@@ -18,8 +22,8 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
         {
 	 ivec mon_pos_delta;
 	 vec direction_vector, pos_delta, dir_correction_vector, est_pos_delta;
-	 vec est_velocity, new_velocity, ave_velocity; 
-         long max_vel_delta, gravity_vec, dest_dist, max_velocity;
+	 vec new_velocity, ave_velocity; 
+         long max_vel_delta, tmp_max_vel_delta, gravity_vec, dest_dist, max_velocity, norm_divisor, grav_angle;
 	 max_vel_delta = DR_MAX_ACC / TIME_STEP_HZ;
 	 gravity_vec = 98000 / TIME_STEP_HZ;
          
@@ -27,10 +31,11 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		/* Update velocity everytime Formation returns a new destination direction */
 		in_a.receive(&direction_vector);
 		LOG("Drone Controller %ld received heading\n");
+		printf("CONTROLLER: Direction [%ld][%ld][%ld]\n", direction_vector[_X], direction_vector[_Y], direction_vector[_Z]);
 
 		/* Adjust destination based on current velocity (dont overshoot) */
 		/* Next position based on burrent estimated velocity */
-		vec_mult(&est_pos_delta, est_velocity, (1/TIME_STEP_HZ));
+		vec_div(&est_pos_delta, est_velocity, TIME_STEP_HZ);
 		/* Position delta to reach desired point */
 		vec_minus(&est_pos_delta, direction_vector, est_pos_delta);
 		vec_mult(&dir_correction_vector, est_pos_delta, TIME_STEP_HZ * 2);
@@ -39,29 +44,31 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 		
 		/* Vertical accel < horizontal accel. below estimates effect of gravity 
                    as a function of the angle of acceleration */
-		max_vel_delta = (dir_correction_vector[_Z] < 0) ? max_vel_delta :
-			max_vel_delta - (gravity_vec * (dir_correction_vector[_Z]/dest_dist));
-		if (max_vel_delta < dest_dist){
-			vec_norm(&dir_correction_vector);
-			vec_mult(&dir_correction_vector, dir_correction_vector, max_vel_delta);
+		grav_angle = (dest_dist == 0) 0 : (dir_correction_vector[_Z]/dest_dist);
+		tmp_max_vel_delta = (dir_correction_vector[_Z] < 0) ? max_vel_delta :
+			max_vel_delta - (gravity_vec * grav_angle);
+		if (tmp_max_vel_delta < dest_dist){
+			norm_divisor = dest_dist / tmp_max_vel_delta;
+			vec_div(&dir_correction_vector, dir_correction_vector, norm_divisor);
 		} 
 
 		/* Determine new velocity after applying acceleration for TIME_STEP
 		   max velocity also affected by gravity as a function of angle of travel */
-		max_velocity = (dir_correction_vector[_Z] < 0) ? DR_MAX_VEL :
-			(DR_MAX_VEL - (gravity_vec * (dir_correction_vector[_Z]/dest_dist)));
-		vec_add(&new_velocity, est_velocity, dir_correction_vector);
 		dest_dist = vec_mag(new_velocity);
+		grav_angle = (dest_dist == 0) 0 : (new_velocity[_Z]/dest_dist);
+		max_velocity = (dir_correction_vector[_Z] < 0) ? DR_MAX_VEL :
+			(DR_MAX_VEL - (gravity_vec * grav_angle));
+		vec_add(&new_velocity, est_velocity, dir_correction_vector);
 		if (max_velocity < dest_dist){
-			vec_norm(&new_velocity);
-			vec_mult(&new_velocity, new_velocity, max_velocity);
+			norm_divisor = dest_dist/max_velocity;
+			vec_div(&new_velocity, new_velocity, norm_divisor);
 		}
 
 		/* acceleration remains constant throughout TIME_STEP.
 		   Position delta equal to average velocity * time   */
-		vec_div(&ave_velocity, dir_correction_vector, 2); 
-		vec_add(&ave_velocity, ave_velocity, est_velocity);
-		vec_mult(&pos_delta, ave_velocity, (1/TIME_STEP_HZ));	
+		vec_add(&ave_velocity, new_velocity, est_velocity); 
+		vec_div(&ave_velocity, ave_velocity, 2);
+		vec_div(&pos_delta, ave_velocity, TIME_STEP_HZ);	
 		
 		est_velocity = new_velocity;
 		
