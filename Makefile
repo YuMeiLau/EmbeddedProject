@@ -41,3 +41,5 @@ clean:
 	$(RM) $(SIRFILES) 
 	$(RM) $(EXEFILE) $(EXEFILE_PAR)
 
+test:	$(EXEFILE)
+	./$(EXEFILE)
