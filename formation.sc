@@ -133,9 +133,9 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 								vec_minus(&v_newij, current_pos[j], new_xi);
 								tmp = (vec_mag(v_newij) - EXPECTED_DISTANCE);
 								tmp = (tmp < 0) ? (tmp * -1) : tmp;
-								printf("FORMATION: term_rel = tmp(%lf) + a_ij(%lf)", tmp, a_ij); 
+								//printf("FORMATION: term_rel = tmp(%lf) + a_ij(%lf)", tmp, a_ij); 
 								term_relative += (long) tmp * (long) a_ij;
-								printf(" term_rel(%ld)", term_relative); 
+								//printf(" term_rel(%ld)", term_relative); 
 						}
 				}
 				if (new_xi[_Z] < SAFE_DISTANCE) {
@@ -143,7 +143,7 @@ behavior Path_Planning(i_vec_sender out_a, vec positions[MAX_NO_DRONES], vec v, 
 					term_relative += a_ij * FORMATION_HEIGHT;
 				}
 				result = term_target + term_relative;
-				printf("FORMATION: result (%ld) = term_target (%ld) + term_relative (%ld)\n", result, term_target, term_relative);
+				//printf("FORMATION: result (%ld) = term_target (%ld) + term_relative (%ld)\n", result, term_target, term_relative);
 				return result;
 		}
 
