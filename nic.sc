@@ -24,7 +24,7 @@ behavior NIC_QUEUE(i_vec_receiver from_camera, vec my_data, int counter)
 	}
 };
 
-behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender to_formation, int counter, long id) 
+behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender to_formation, int counter, long id, struct metric_logger metric) 
 {
    long last_received;
 	int write;
@@ -37,7 +37,7 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 			write = 1;
 		while(1){
 			if (write){
-				if (counter > 1) _WB_OUTGOING_DATA_DROPPED += (counter - 1);
+				if (counter > 1) metric._WB_OUTGOING_DATA_DROPPED += (counter - 1);
 				idata_out[_X] = data_out[_X];
 				idata_out[_Y] = data_out[_Y];
 				idata_out[_Z] = data_out[_Z];
@@ -66,13 +66,13 @@ behavior NIC_RROBIN_MNGR(i_wbridge_tranceiver wic, vec data_out, i_ivec_sender t
 	}
 };
 
-behavior NIC(i_wbridge_tranceiver wic, i_vec_receiver from_camera, i_ivec_sender to_formation) implements NIC_INIT
+behavior NIC(i_wbridge_tranceiver wic, i_vec_receiver from_camera, i_ivec_sender to_formation, struct metric_logger metric) implements NIC_INIT
 {
 	long id;
 	int counter;
 	vec my_data;
 	NIC_QUEUE nicq(from_camera, my_data, counter);
-	NIC_RROBIN_MNGR  mngr(wic, my_data, to_formation, counter, id);	
+	NIC_RROBIN_MNGR  mngr(wic, my_data, to_formation, counter, id, metric);	
 
 	void init(long ID){
 		counter = 0;

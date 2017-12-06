@@ -25,7 +25,8 @@ interface i_wbridge_tranceiver
 channel wirelessBridgeLink(
 		void *Data,
 		long Addr,
-		event sent)
+		event sent,
+		struct metric_logger metric)
    implements i_wbridge_tranceiver
 {
   
@@ -39,7 +40,7 @@ channel wirelessBridgeLink(
 	Addr = addr;
         memcpy((char*)Data,(char*)data, len); 
         notify sent;
-	_PACKETS_SENT++;
+	metric._PACKETS_SENT++;
      } 
   }
 
@@ -63,7 +64,7 @@ interface Init
   void init(void);
 };
   
-channel wirelessBridge()
+channel wirelessBridge(struct metric_logger metric)
   implements i_wbridge_tranceiver, Init
 {
   unsigned char Data[WB_MAX_PAYLOAD_SIZE];
@@ -71,7 +72,7 @@ channel wirelessBridge()
   long senderAddress;
   event sent; 
   
-  wirelessBridgeLink linkAccess(D, senderAddress, sent);
+  wirelessBridgeLink linkAccess(D, senderAddress, sent, metric);
 
   void init(void){
 	D = Data;

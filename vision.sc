@@ -4,13 +4,14 @@
 import "c_vec_queue";
 
 
-behavior ImageCruncher(vec rel_position, long ID)
+behavior ImageCruncher(vec rel_position, long ID, struct metric_logger metric)
 {
 	void main(void)
 	{
-		rel_position[_X] = _DRONE_POSITIONS[ID][_X];
-		rel_position[_Y] = _DRONE_POSITIONS[ID][_Y];
-		rel_position[_Z] = _DRONE_POSITIONS[ID][_Z];
+		waitfor(TIME_STEP);
+		rel_position[_X] = metric._DRONE_POSITIONS[ID][_X] - metric._TARGET[_X];
+		rel_position[_Y] = metric._DRONE_POSITIONS[ID][_Y] - metric._TARGET[_Y];
+		rel_position[_Z] = metric._DRONE_POSITIONS[ID][_Z] - metric._TARGET[_Z];
 
 	}
 };
@@ -19,10 +20,8 @@ behavior ToNic(i_vec_sender vec_to_nic, vec rel_position)
 {
 	void main(void)
 	{
-		waitfor(FRAME_RATE);
-		vec_to_nic.send(rel_position);
-
-
+			waitfor(FRAME_RATE);
+			vec_to_nic.send(rel_position);
 
 	}
 };
@@ -32,18 +31,18 @@ behavior ToFormation(i_vec_sender vec_to_formation, vec rel_position)
 {
 	void main(void)
 	{
-		waitfor(FRAME_RATE);
-		vec_to_formation.send(rel_position);
+			waitfor(FRAME_RATE);
+			vec_to_formation.send(rel_position);
 	}
 };
 
 interface V_Init{ void init(long); };
 
-behavior Vision(i_vec_sender vec_to_nic, i_vec_sender vec_to_formation) implements V_Init
+behavior Vision(i_vec_sender vec_to_nic, i_vec_sender vec_to_formation, struct metric_logger metric) implements V_Init
 {
 	long ID;
 	vec rel_position;
-	ImageCruncher rel_pos_algorithm(rel_position, ID);
+	ImageCruncher rel_pos_algorithm(rel_position, ID, metric);
 	ToNic nic_sender(vec_to_nic, rel_position); 
 	ToFormation formation_sender(vec_to_formation, rel_position); 
 
@@ -53,10 +52,10 @@ behavior Vision(i_vec_sender vec_to_nic, i_vec_sender vec_to_formation) implemen
 
         void main(void)
         {
-		par{
-			rel_pos_algorithm;
-			nic_sender;
-			formation_sender;
+		fsm{
+			rel_pos_algorithm: goto nic_sender;
+			nic_sender: goto formation_sender;
+			formation_sender: goto rel_pos_algorithm;
 		}
         }
 };

@@ -1,12 +1,13 @@
 #include "drone.sh"
 #include "inc/vec.h"
 #include "inc/log.h"
+#include "metrics.sh"
 import "c_ivec_array";
 import "c_vec_queue";
 
 interface Cont_Init { void init(long); };
 
-behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) implements Cont_Init
+behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v, struct metric_logger metric) implements Cont_Init
 {
 	long id;
 	vec est_velocity;
@@ -30,8 +31,8 @@ behavior Controller(i_vec_receiver in_a, i_mon_send out_v, i_vec_sender est_v) i
 	 while(1){
 		/* Update velocity everytime Formation returns a new destination direction */
 		in_a.receive(&direction_vector);
-		LOGL("Drone Controller %ld received heading\n", id);
-		printf("CONTROLLER: Direction [%ld][%ld][%ld]\n", direction_vector[_X], direction_vector[_Y], direction_vector[_Z]);
+		//LOGL("Drone Controller %ld received heading\n", id);
+		//printf("CONTROLLER: Drone:%ld [%ld][%ld][%ld]  Direction [%ld][%ld][%ld]\n", id, metric._DRONE_POSITIONS[id][_X], metric._DRONE_POSITIONS[id][_Y], metric._DRONE_POSITIONS[id][_Z], direction_vector[_X], direction_vector[_Y], direction_vector[_Z]);
 
 		/* Adjust destination based on current velocity (dont overshoot) */
 		/* Next position based on burrent estimated velocity */
