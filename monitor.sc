@@ -45,19 +45,30 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 		FILE *outFile;
 		int count,initCount,colCount;
 		FILE *inFile;
+		sim_time first_col_time;
 		bool flag=false;
+		int last_col_num;
 		LOG("Starting Monitor\n");
 		init();														//read initial position of the drones from the file startposition
 		printf("\033[2J");
 		while(1)
 		{
 			if (PRINT_METRICS){
+				
 				printf("\033[2J");
 				printf("\n\n********COLLISION AVOIDANCE INFORMATION********\n");
 				printf("Colisions: %d\n", droneCollision);
+				if (droneCollision > 0){
+					if (last_col_num == 0){
+						first_col_time = now();
+					}
+					printf("First Collision: %d miliseconds", (first_col_time/1000000));
+				}
 				printf("\n\n**********WIRELESS NETWORK STATISTICS**********\n");
 				printf("Packets Sent: %ld\n", metric._PACKETS_SENT);	
-				printf("Packets Dropped: %ld\n", metric._PACKETS_DROPPED);	
+				printf("Packets Dropped: %ld\n", metric._PACKETS_DROPPED);
+                                printf("time:%d\n",(now()/1000000000));	
+				last_col_num = droneCollision;
 			}
 
 			waitfor(TIME_STEP);

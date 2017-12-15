@@ -55,7 +55,7 @@
 /****************************************************/
 #define DR_MAX_ACC 20000      /* milimeters / square second */
 #define DR_MAX_VEL 16000      /* milimeters / second */
-#define SAFE_DISTANCE 2000    /* milimeters */
+#define SAFE_DISTANCE 4000    /* milimeters */
 #define COLLISION_DISTANCE 300
 
 
