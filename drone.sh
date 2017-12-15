@@ -45,6 +45,16 @@
 #define TIME_STEP_HZ 60	      /* added for ease of use */
 #define TIME_STEP 16666666    /* In nanoseconds: 16666666=60Hz */
 
+#define _INERTIA 0.8
+#define _PLOCAL .6
+#define _PGLOBAL .4
+#define _P 3
+#define _S 125
+#define TERMINATION_POINT 1
+#define EXPECTED_DISTANCE 3000
+#define SAFE_DISTANCE 2500    /* milimeters */
+
+
 /****************************************************/
 /****            Camera Configuration            ****/
 /****************************************************/
@@ -55,7 +65,6 @@
 /****************************************************/
 #define DR_MAX_ACC 20000      /* milimeters / square second */
 #define DR_MAX_VEL 16000      /* milimeters / second */
-#define SAFE_DISTANCE 4000    /* milimeters */
 #define COLLISION_DISTANCE 300
 
 

@@ -48,6 +48,12 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 		sim_time first_col_time;
 		bool flag=false;
 		int last_col_num;
+        	long swarm_diameter = 0;
+		long min_drone_dist, ave_min_drone_dist, tmp_dist;
+		double swarm_radius_meters;
+		double density, min_density, max_density;
+		max_density = 0.0;
+		min_density = 99999;
 		LOG("Starting Monitor\n");
 		init();														//read initial position of the drones from the file startposition
 		printf("\033[2J");
@@ -57,7 +63,17 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 				
 				printf("\033[2J");
 				printf("\n\n********COLLISION AVOIDANCE INFORMATION********\n");
+				printf("Number of Drones: %d\n", MAX_NO_DRONES);
 				printf("Colisions: %d\n", droneCollision);
+				printf("Swarm Diameter: %d milimeters\n", swarm_diameter);
+				swarm_radius_meters = (double)swarm_diameter / 2000;
+				density = (double) (MAX_NO_DRONES / (4.1888 * swarm_radius_meters * swarm_radius_meters * swarm_radius_meters));
+				max_density = (density < 9999 && density > max_density) ? density : max_density; 
+				min_density = (density < min_density) ? density : min_density; 
+				printf("Swarm Density: %f drones per sq meter\n", density);
+				printf("Min Density: %f drones per sq meter\n", min_density);
+				printf("Max Density: %f drones per sq meter\n", max_density);
+				printf("Ave Min Drone Dist: %d milimeters\n", ave_min_drone_dist);
 				if (droneCollision > 0){
 					if (last_col_num == 0){
 						first_col_time = now();
@@ -73,12 +89,15 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 
 			waitfor(TIME_STEP);
 			outFile = fopen("droneposition.txt","w+");
+			swarm_diameter = 0;
+			ave_min_drone_dist = 0;
 			for(count=0;count<MAX_NO_DRONES;count++)
 			{
 				in_ivec.receive(&droneRelativeVec[count],count);						//receive the relative X,Y,Z positions from controller 
 				metric._DRONE_POSITIONS[count][_X] = metric._DRONE_POSITIONS[count][_X] + droneRelativeVec[count][_X];			//get the new position of each drone
                                 metric._DRONE_POSITIONS[count][_Y] = metric._DRONE_POSITIONS[count][_Y] + droneRelativeVec[count][_Y];
                                 metric._DRONE_POSITIONS[count][_Z] = metric._DRONE_POSITIONS[count][_Z] + droneRelativeVec[count][_Z];
+				min_drone_dist = 9999;
 
 				//check for collision avoidance before writing to file
 				flag = false;
@@ -87,6 +106,12 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 					if(count != colCount)				
 					{
 						vec_minus(&droneColCheck,metric._DRONE_POSITIONS[count],metric._DRONE_POSITIONS[colCount]);
+						tmp_dist = vec_mag(droneColCheck);
+						if (tmp_dist > swarm_diameter){
+							swarm_diameter = tmp_dist;
+						}
+						if (tmp_dist < min_drone_dist)
+							min_drone_dist = tmp_dist;
 						if(vec_mag(droneColCheck) < COLLISION_DISTANCE)
 						{
 							flag = true;
@@ -102,8 +127,10 @@ behavior DroneMonitor(i_mon_receive in_ivec, struct metric_logger metric)
 					}
 				}
 				if (flag == false) droneCollisions[count] == false;
+				ave_min_drone_dist += min_drone_dist;
 				fprintf(outFile, "%ld %ld %ld\n",metric._DRONE_POSITIONS[count][_X],metric._DRONE_POSITIONS[count][_Y],metric._DRONE_POSITIONS[count][_Z]);	//write the new position to file for 3d display
 			}
+			ave_min_drone_dist = ave_min_drone_dist / MAX_NO_DRONES;
 			LOG("Monitor: Positions Updated\n");
 			fclose(outFile);   //required?
 		}
